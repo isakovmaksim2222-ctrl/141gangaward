@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>141/GANG/AWARD — Голосование • Beta 0.4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020000; --text: #fff; --accent: #e01010; --accent-glow: #ff3333;
+            --green: #1a3a1a; --green-glow: #2a5a2a; --radius: 14px;
+            --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #020000; min-height: 100vh; color: var(--text); overflow-x: hidden; }
+
+        .bg-image { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(2.5); width: 100%; height: 100%; z-index: 0; opacity: 0.3; pointer-events: none; }
+        .bg-image img { width: 100%; height: 100%; object-fit: contain; }
+        .bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .bg-layer::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 15% 10%, rgba(220,20,20,0.3) 0%, transparent 50%), radial-gradient(ellipse at 85% 20%, rgba(200,10,10,0.25) 0%, transparent 45%), radial-gradient(ellipse at 50% 50%, rgba(180,0,0,0.15) 0%, transparent 55%), radial-gradient(ellipse at 30% 80%, rgba(30,80,30,0.2) 0%, transparent 40%), radial-gradient(ellipse at 70% 75%, rgba(25,70,25,0.18) 0%, transparent 45%), radial-gradient(ellipse at 60% 30%, rgba(20,60,20,0.12) 0%, transparent 50%), radial-gradient(ellipse at 10% 60%, rgba(35,85,35,0.15) 0%, transparent 40%), radial-gradient(ellipse at 90% 55%, rgba(30,75,30,0.1) 0%, transparent 45%), radial-gradient(ellipse at 50% 0%, rgba(255,50,50,0.12) 0%, transparent 35%), radial-gradient(ellipse at 50% 100%, rgba(30,70,20,0.2) 0%, transparent 40%);
+            animation: bgShift 10s ease-in-out infinite;
+        }
+        @keyframes bgShift { 0%,100%{opacity:0.8;transform:scale(1)} 50%{opacity:1;transform:scale(1.04)} }
+        .grass-layer { position: fixed; bottom: 0; left: 0; width: 100%; height: 250px; z-index: 2; pointer-events: none; opacity: 0.3; }
+        .grass-layer::before {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(82deg, transparent, transparent 2px, rgba(30,80,20,0.6) 2px, rgba(30,80,20,0.6) 4px), repeating-linear-gradient(96deg, transparent, transparent 3px, rgba(40,90,25,0.5) 3px, rgba(40,90,25,0.5) 5px), repeating-linear-gradient(88deg, transparent, transparent 2px, rgba(25,70,15,0.55) 2px, rgba(25,70,15,0.55) 3px), repeating-linear-gradient(78deg, transparent, transparent 4px, rgba(35,85,20,0.4) 4px, rgba(35,85,20,0.4) 6px);
+            mask-image: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 35%, transparent 100%); -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 35%, transparent 100%);
+        }
+        .grid-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; background-image: linear-gradient(rgba(255,0,0,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,0,0,0.025) 1px, transparent 1px); background-size: 50px 50px; }
+
+        .container { position: relative; z-index: 10; max-width: 1000px; margin: 0 auto; padding: 25px 24px 80px; }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        .header-badge { display: inline-block; padding: 8px 24px; background: rgba(255,0,0,0.08); border: 1px solid rgba(255,50,50,0.4); border-radius: 50px; font-family: 'Orbitron', sans-serif; font-size: 9px; letter-spacing: 4px; color: var(--accent-glow); margin-bottom: 18px; }
+        .header h1 { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(28px, 7vw, 50px); letter-spacing: 4px; color: #fff; text-shadow: 0 0 15px rgba(220,0,0,0.7), 0 0 50px rgba(180,0,0,0.5); }
+        .header h1 .slash { color: var(--accent); }
+
+        .sec-title { font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 6px; color: var(--accent-glow); text-align: center; margin: 45px 0 20px; text-shadow: 0 0 12px rgba(255,0,0,0.4); }
+
+        .cards-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; padding: 5px 5px 20px; }
+
+        .card { width: 180px; cursor: pointer; text-align: center; transition: var(--transition); }
+        .card:hover { transform: translateY(-4px); }
+        .card .card-img { width: 100%; padding-bottom: 100%; position: relative; overflow: hidden; border-radius: var(--radius); }
+        .card .card-img img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; transition: transform 0.4s; }
+        .card:hover .card-img img { transform: scale(1.06); }
+        .card.done .card-img { filter: drop-shadow(0 0 10px rgba(40,120,40,0.5)); }
+        .card .card-label { margin-top: 12px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 3px; color: var(--text); text-shadow: 0 0 10px rgba(255,50,50,0.6), 0 0 25px rgba(200,0,0,0.4); line-height: 1.3; }
+        .card .card-label span { color: var(--accent-glow); text-shadow: 0 0 15px rgba(255,50,50,0.8); }
+        .card .vote-res { margin-top: 8px; }
+        .card .vote-res .avs { display: flex; justify-content: center; gap: 4px; }
+        .card .vote-res .av { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--green-glow); box-shadow: 0 0 10px rgba(40,120,40,0.5); }
+        .card .vote-res .wn { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 1px; color: var(--green-glow); margin-top: 4px; text-shadow: 0 0 8px rgba(40,120,40,0.6); }
+
+        .vote-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.94); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(8px); }
+        .vote-modal.on { display: flex; }
+        .vote-box { background: #080000; border: 1px solid rgba(255,50,50,0.5); padding: 24px 18px; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; border-radius: var(--radius); position: relative; box-shadow: 0 0 60px rgba(200,0,0,0.3); }
+        .vote-box .ttl { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 3px; color: var(--text); text-align: center; margin-bottom: 20px; }
+        .vote-box .ttl span { color: var(--accent-glow); }
+        .n-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .n-sq { cursor: pointer; border-radius: var(--radius); overflow: hidden; transition: var(--transition); }
+        .n-sq.sel .ph { box-shadow: 0 0 20px rgba(40,120,40,0.4); }
+        .n-sq .ph { width: 100%; padding-bottom: 100%; position: relative; overflow: hidden; background: rgba(50,0,0,0.2); border-radius: var(--radius); transition: var(--transition); }
+        .n-sq .ph img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
+        .n-sq .nk { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 1px; color: var(--text); text-align: center; margin-top: 6px; }
+        .pick { display: block; margin: 6px auto 0; padding: 5px 14px; font-family: 'Orbitron', sans-serif; font-size: 8px; letter-spacing: 1.5px; background: rgba(200,0,0,0.7); color: #fff; border: 1px solid rgba(255,50,50,0.4); cursor: pointer; text-transform: uppercase; border-radius: 50px; transition: var(--transition); }
+        .pick:hover { background: rgba(240,20,20,0.9); }
+        .pick.ch { background: rgba(30,90,30,0.8); border-color: var(--green-glow); box-shadow: 0 0 10px rgba(40,120,40,0.5); }
+        .cfm { display: block; width: 100%; margin-top: 20px; padding: 13px; font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 3px; background: linear-gradient(135deg, #880000, #660000); color: #fff; border: 1px solid var(--accent-glow); cursor: pointer; text-transform: uppercase; border-radius: 50px; transition: var(--transition); box-shadow: 0 0 15px rgba(255,0,0,0.3); }
+        .cfm:hover:not(:disabled) { background: linear-gradient(135deg, #aa0000, #880000); box-shadow: 0 0 25px rgba(255,0,0,0.5); }
+        .cfm:disabled { opacity: 0.3; background: #333; border-color: #555; cursor: not-allowed; }
+        .modal-close { position: absolute; top: 10px; right: 14px; color: var(--accent-glow); font-size: 22px; cursor: pointer; background: none; border: none; font-family: 'Orbitron', sans-serif; }
+
+        .footer { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid rgba(200,0,0,0.2); }
+        .footer a { color: rgba(255,255,255,0.5); text-decoration: none; font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 4px; transition: var(--transition); }
+        .footer a:hover { color: var(--accent-glow); }
+        .footer a span { color: var(--accent); }
+        .footer .ver { font-size: 9px; color: rgba(255,255,255,0.1); margin-top: 10px; letter-spacing: 3px; }
+
+        @media(min-width:600px){ .n-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media(max-width:500px){ .card{width:140px} .card .card-label{font-size:10px;letter-spacing:2px} }
+    </style>
+</head>
+<body>
+    <div class="bg-image"><img src="Photo/fon.PNG" onerror="this.style.display='none'" alt=""></div>
+    <div class="bg-layer"></div>
+    <div class="grass-layer"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-badge">ПРЕМИЯ СТРИМЕРОВ И ХОУБИСТОВ</div>
+            <h1>141<span class="slash">/</span>GANG<span class="slash">/</span>AWARD</h1>
+        </div>
+
+        <div class="sec-title">ГЛАВНЫЕ</div><div class="cards-grid" id="row1"></div>
+        <div class="sec-title">ОСНОВНЫЕ</div><div class="cards-grid" id="row2"></div>
+        <div class="sec-title">ДОПОЛНИТЕЛЬНЫЕ</div><div class="cards-grid" id="row3"></div>
+
+        <div class="footer">
+            <a href="index.html">← НА ГЛАВНУЮ</a> &nbsp;&nbsp;
+            <a href="https://t.me/gaang141" target="_blank">141gangNEWS <span>(@gaang141)</span></a>
+            <p class="ver">Beta 0.4 • 141/GANG/AWARD • 2026</p>
+        </div>
+    </div>
+
+    <div class="vote-modal" id="voteModal" onclick="if(event.target===this)closeVote()">
+        <div class="vote-box">
+            <button class="modal-close" onclick="closeVote()">✕</button>
+            <div class="ttl" id="voteTitle"></div>
+            <div class="n-grid" id="voteGrid"></div>
+            <button class="cfm" id="voteConfirm" disabled onclick="confirmVote()">ПОДТВЕРДИТЬ ВЫБОР</button>
+        </div>
+    </div>
+
+    <script>
+    var ntf={'Кирилл':'Helin139','Тамара':'Moranabattoryq','Артём':'Tankzor','Вера':'How3rka','Рома':'R4dom1r','Юра':'Yurapivo','Глеб':'Sasavot','Ростик':'Rostikfacekid','Сасiч':'Sasavot','Зёпик':'Helin139','Спасибо/что/позвали':'Tankzor','Ляля':'Rostikfacekid','Домработница/Юра':'ДомработницаЮра','Парикмахер/Рома':'ПарикмахерРома','L/Рома':'LРома','Повар/Юра':'ПоварЮра','Повар/Рома':'ПоварРома','Спецназ/Ростик':'СпецназРостик','Саламанка/Гагик':'СаламанкаГагик','Ksuenoot':'Ksuenoot','KISHKI FAMILY':'KISHKI','ОБЩЕСТВО 141':'O141','Hayzen':'hay','Daxhsix':'Dax','SASAVOT/НАРЕЗКИ':'нарезки','Конструктивный Сасавот':'Констр','SASAVOT ROFLS':'ROFLS','Formixyouknow':'Formixyouknow','Poisonika':'Poisonika','Iceicell':'Iceicell','Moranabattoryq':'Moranabattoryq','Korya_MC':'Korya_MC','How3rka':'How3rka','Timaevvv':'Timaevvv','joiceO_o':'joiceO_o','Asivoy':'Asivoy','Vsevkusno':'Vsevkusno','Gagik':'Gagik','Narek_CR':'Narek_CR','Ognev':'Ognev','Ra1zen':'Ra1zen','Coffee_MayZz':'Coffee_MayZz','Hittori':'Hittori','LOTA':'LOTA','Leva2k':'Leva2k','Zapominau96':'Zapominau96','C12':'C12','Akero':'Akero','Korochka36':'Korochka36','Redoxqw':'Redoxqw','Teps':'Teps','Yaneserhio':'Yaneserhio','Витя':'Витя','Лиза':'Лиза','Нина':'Нина'};
+    var an=[{k:'141/KING',n:['Helin139','Formixyouknow','Rostikfacekid','R4dom1r','Yurapivo','Tankzor'],i:'king'},{k:'141/QUEEN',n:['Poisonika','Iceicell','Moranabattoryq','Korya_MC','How3rka'],i:'queen'},{k:'CS2/СТРИМЕР/ГОДА',n:['Tankzor','Formixyouknow','Iceicell','Timaevvv','joiceO_o'],i:'cs2'},{k:'DOTA2/СТРИМЕР/ГОДА',n:['R4dom1r','Rostikfacekid','Tankzor'],i:'dota2'},{k:'МУЛЬТИГЕЙМЕР/ГОДА',n:['Yurapivo','Tankzor','Helin139','Sasavot'],i:'multigame'},{k:'ОТКРЫТИЕ/ГОДА',n:['Asivoy','Timaevvv','Vsevkusno','Gagik','Narek_CR'],i:'discovery'},{k:'ГЛАВНЫЙ/ЗАВОЗ/ГОДА',n:['R4dom1r','Yurapivo','Helin139','Formixyouknow','Rostikfacekid','Timaevvv'],i:'delivery'},{k:'МОДЕРАТОР/ГОДА',n:['Ognev','Ra1zen','Ksuenoot','Coffee_MayZz','Hittori'],i:'moderator'},{k:'ПАРА/ГОДА',n:['Кирилл + Вера','Артём + Тамара'],i:'couple',p:true},{k:'АФК/ГОДА',n:['Iceicell','Timaevvv','Poisonika','Rostikfacekid','R4dom1r'],i:'afk'},{k:'ДУО/ГОДА',n:['Кирилл + Ростик','Рома + Юра','Витя + Лиза','Глеб + Кирилл','Глеб + Ростик'],i:'duo',p:true},{k:'ПАБЛИК141/ГОДА',n:['KISHKI FAMILY','ОБЩЕСТВО 141'],i:'public'},{k:'НАРЕЗЧИК/ГОДА',n:['SASAVOT/НАРЕЗКИ','Конструктивный Сасавот','SASAVOT ROFLS'],i:'cutter'},{k:'ЭДИТОР141/ГОДА',n:['Zapominau96','C12','Akero','Korochka36','Redoxqw','Teps','Hayzen','Daxhsix','Yaneserhio'],i:'editor'},{k:'ЛУЧШИЙ/141КОСПЛЕЙ/ГОДА',n:['Домработница/Юра','Парикмахер/Рома','L/Рома','Повар/Юра','Повар/Рома','Спецназ/Ростик','Саламанка/Гагик'],i:'cosplay'},{k:'САМЫЙ/НАРОДНЫЙ/СТРИМЕР',n:['Timaevvv','Helin139','Tankzor','Yurapivo'],i:'popular'},{k:'АУДИТОРИЯ141/ГОДА',n:['Sasavot','Helin139','Rostikfacekid','Timaevvv','Tankzor'],i:'public'},{k:'ХАРИЗМА141/ГОДА',n:['Rostikfacekid','Asivoy','Formixyouknow','Helin139'],i:'popular'},{k:'МЕМ141/ГОДА',n:['Сасiч','Зёпик','Спасибо/что/позвали','Ляля'],i:'king'}];
+    var v={},l={};try{v=JSON.parse(localStorage.getItem('v141')||'{}');}catch(e){}try{l=JSON.parse(localStorage.getItem('l141')||'{}');}catch(e){}
+    function pn(n){if(ntf[n])return ntf[n];return n.replace(/[+\/]/g,'_').replace(/\s+/g,'_');}
+
+    function buildNominations(){
+        document.getElementById('row1').innerHTML='';document.getElementById('row2').innerHTML='';document.getElementById('row3').innerHTML='';
+        an.forEach(function(item,i){
+            var vv=v[item.k],pp=item.p;
+            var c=i<2?document.getElementById('row1'):(i<6?document.getElementById('row2'):document.getElementById('row3'));
+            var card=document.createElement('div');card.className='card'+(l[item.k]?' done':'');
+            if(vv&&l[item.k]){
+                var inner='';
+                if(pp){var pts=vv.split(' + '),ah='';pts.forEach(function(p){var f=ntf[p]||pn(p);ah+='<img class="av" src="Photo/'+f+'.PNG" onerror="this.style.display=\'none\'">';});inner='<div class="card-img">'+ah+'</div><div class="vote-res"><div class="wn">'+vv+'</div></div>';}
+                else{inner='<div class="card-img"><img src="Photo/'+pn(vv)+'.PNG" onerror="this.style.display=\'none\'"></div><div class="vote-res"><div class="wn">'+vv+'</div></div>';}
+                card.innerHTML=inner+'<div class="card-label">'+item.k.replace(/\//g,'<span>/</span>')+'</div>';
+            } else {
+                card.innerHTML='<div class="card-img"><img src="Photo/'+item.i+'.PNG" onerror="this.style.display=\'none\'"></div><div class="card-label">'+item.k.replace(/\//g,'<span>/</span>')+'</div>';
+            }
+            card.onclick=function(){openVote(item.k);};c.appendChild(card);
+        });
+    }
+
+    var ck=null,cs=null;
+    function openVote(key){if(l[key]){alert('Уже голосовали!');return;}ck=key;cs=v[key]||null;document.getElementById('voteTitle').innerHTML=key.replace(/\//g,'<span>/</span>');var g=document.getElementById('voteGrid');g.innerHTML='';var f=null;an.forEach(function(item){if(item.k===key)f=item;});if(!f)return;f.n.forEach(function(n){var sq=document.createElement('div');sq.className='n-sq'+(cs===n?' sel':'');sq.innerHTML='<div class="ph"><img src="Photo/'+pn(n)+'.PNG" onerror="this.src=\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22><rect fill=%22%230a0000%22 width=%22200%22 height=%22200%22/><text x=%22100%22 y=%22120%22 text-anchor=%22middle%22 fill=%22%23cc0000%22 font-size=%2260%22>'+n.charAt(0)+'</text></svg>\'"></div><div class="nk">'+n+'</div><button class="pick'+(cs===n?' ch':'')+'">'+(cs===n?'ВЫБРАН':'ВЫБРАТЬ')+'</button>';sq.onclick=function(e){if(e.target.tagName==='BUTTON')return;sel(n,sq);};sq.querySelector('.pick').onclick=function(e){e.stopPropagation();sel(n,sq);};g.appendChild(sq);});document.getElementById('voteConfirm').disabled=!cs;document.getElementById('voteModal').classList.add('on');}
+    function sel(n,sq){cs=n;document.querySelectorAll('.n-sq').forEach(function(el){el.classList.remove('sel');});sq.classList.add('sel');document.querySelectorAll('.pick').forEach(function(b){b.textContent='ВЫБРАТЬ';b.classList.remove('ch');});sq.querySelector('.pick').textContent='ВЫБРАН';sq.querySelector('.pick').classList.add('ch');document.getElementById('voteConfirm').disabled=false;}
+
+    window.confirmVote=function(){if(!cs||!ck)return;v[ck]=cs;l[ck]=true;localStorage.setItem('v141',JSON.stringify(v));localStorage.setItem('l141',JSON.stringify(l));buildNominations();closeVote();alert('Голос принят!');};
+    window.closeVote=function(){document.getElementById('voteModal').classList.remove('on');ck=null;cs=null;};
+
+    buildNominations();
+    </script>
+</body>
+</html>

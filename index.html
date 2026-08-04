@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>141gangNEWS — Beta 0.4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020000; --surface: #080000;
+            --border: rgba(200,0,0,0.2); --border-active: rgba(255,50,50,0.5);
+            --text: #fff; --text-secondary: rgba(255,255,255,0.5);
+            --accent: #e01010; --accent-glow: #ff3333;
+            --radius: 14px; --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); overflow-x: hidden; }
+        .bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        .bg-layer::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 15% 10%, rgba(200,0,0,0.18) 0%, transparent 55%), radial-gradient(ellipse at 85% 40%, rgba(180,0,0,0.12) 0%, transparent 50%), radial-gradient(ellipse at 50% 85%, rgba(150,0,0,0.15) 0%, transparent 50%), radial-gradient(ellipse at 50% 0%, rgba(255,40,40,0.1) 0%, transparent 40%), radial-gradient(ellipse at 80% 80%, rgba(220,0,0,0.08) 0%, transparent 40%);
+            animation: bgShift 15s ease-in-out infinite;
+        }
+        @keyframes bgShift { 0%,100%{opacity:0.7;transform:scale(1)} 50%{opacity:1;transform:scale(1.04)} }
+        .grid-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; background-image: linear-gradient(rgba(200,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(200,0,0,0.03) 1px, transparent 1px); background-size: 60px 60px; }
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+
+        .container { position: relative; z-index: 10; max-width: 960px; margin: 0 auto; padding: 30px 24px 80px; }
+
+        .header { text-align: center; margin-bottom: 35px; }
+        .header-badge { display: inline-block; padding: 10px 28px; background: rgba(255,0,0,0.06); border: 1px solid rgba(255,50,50,0.35); border-radius: 50px; font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 5px; color: var(--accent-glow); margin-bottom: 22px; }
+        .header h1 { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(38px, 10vw, 78px); letter-spacing: 6px; line-height: 1; color: #fff; text-shadow: 0 0 15px rgba(220,0,0,0.7), 0 0 50px rgba(180,0,0,0.5), 0 0 100px rgba(120,0,0,0.3); animation: titleGlow 4s ease-in-out infinite; }
+        @keyframes titleGlow { 0%,100%{text-shadow:0 0 15px rgba(220,0,0,0.7),0 0 50px rgba(180,0,0,0.5)} 50%{text-shadow:0 0 30px rgba(255,30,30,0.9),0 0 80px rgba(200,0,0,0.7)} }
+        .header h1 .slash { color: var(--accent); }
+        .header .sub { font-size: 13px; letter-spacing: 5px; color: var(--text-secondary); margin-top: 10px; text-transform: uppercase; }
+
+        .slider-wrap { position: relative; margin: 30px 0 40px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); overflow: hidden; box-shadow: 0 0 60px rgba(180,0,0,0.1); }
+        .slide { display: none; padding: 50px 40px; text-align: center; }
+        .slide.active { display: block; animation: fadeSlide 0.5s ease-out; }
+        @keyframes fadeSlide { 0%{opacity:0;transform:translateY(10px)} 100%{opacity:1;transform:translateY(0)} }
+        .slide img { width: 100%; max-width: 500px; border-radius: 14px; margin-bottom: 22px; border: 2px solid rgba(200,0,0,0.35); }
+        .slide h2 { font-family: 'Orbitron', sans-serif; font-size: clamp(20px, 4vw, 34px); letter-spacing: 4px; color: var(--accent-glow); margin-bottom: 16px; }
+        .slide p { font-size: 14px; line-height: 1.9; color: var(--text-secondary); max-width: 640px; margin: 0 auto; }
+        .slide .streamer-name { color: #fff; font-weight: 700; display: block; margin-top: 16px; font-size: 15px; }
+        .slide .streamer-desc { display: block; margin-left: 10px; padding-left: 12px; border-left: 2px solid rgba(255,50,50,0.4); color: #bbb; font-size: 13px; }
+        .slide .error-block { font-family: 'JetBrains Mono', monospace; color: #ff4444; background: rgba(0,0,0,0.6); padding: 5px 10px; border-left: 3px solid #ff0000; display: inline-block; text-align: left; font-size: 12px; line-height: 1.5; }
+
+        .slider-arrows { position: absolute; top: 50%; left: 0; width: 100%; transform: translateY(-50%); pointer-events: none; display: flex; justify-content: space-between; padding: 0 10px; }
+        .slider-arrow { pointer-events: auto; width: 46px; height: 46px; background: rgba(20,0,0,0.8); border: 1px solid var(--border-active); color: var(--accent-glow); font-size: 22px; cursor: pointer; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: var(--transition); backdrop-filter: blur(8px); }
+        .slider-arrow:hover { background: rgba(200,0,0,0.6); color: #fff; }
+        .slider-dots { display: flex; justify-content: center; gap: 10px; padding: 0 0 20px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,50,50,0.25); cursor: pointer; transition: var(--transition); }
+        .dot.active { background: var(--accent-glow); box-shadow: 0 0 12px var(--accent-glow); transform: scale(1.3); }
+
+        .nav-btns { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
+        .nav-btn { display: inline-block; padding: 14px 35px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, rgba(200,0,0,0.8), rgba(100,0,0,0.9)); border: 1px solid var(--border-active); cursor: pointer; border-radius: 50px; text-decoration: none; transition: var(--transition); box-shadow: 0 0 25px rgba(255,0,0,0.2); }
+        .nav-btn:hover { background: linear-gradient(135deg, #ff2222, #aa0000); border-color: #ff5555; transform: translateY(-3px); box-shadow: 0 0 40px rgba(255,0,0,0.4); }
+        .nav-btn.faq { background: linear-gradient(135deg, rgba(30,90,30,0.8), rgba(20,60,20,0.9)); border-color: rgba(40,120,40,0.5); }
+
+        .footer { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--border); }
+        .footer a { color: var(--text-secondary); text-decoration: none; font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 4px; transition: var(--transition); }
+        .footer a:hover { color: var(--accent-glow); }
+        .footer a span { color: var(--accent); }
+        .footer .ver { font-size: 9px; color: rgba(255,255,255,0.1); margin-top: 10px; letter-spacing: 3px; }
+
+        @media(max-width:600px){ .slide{padding:35px 20px} .slider-arrow{width:38px;height:38px;font-size:18px} .nav-btn{padding:12px 25px;font-size:11px} }
+    </style>
+</head>
+<body>
+    <div class="bg-layer"></div>
+    <div class="grid-overlay"></div>
+    <canvas class="particles" id="particles"></canvas>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-badge">ПРЕМИЯ СТРИМЕРОВ И ХОУБИСТОВ</div>
+            <h1>141<span class="slash">/</span>GANG<span class="slash">/</span>AWARD</h1>
+            <p class="sub">от паблика 141gangNEWS</p>
+        </div>
+
+        <div class="slider-wrap">
+            <div class="slide active">
+                <img src="Photo/1.PNG" onerror="this.style.display='none'">
+                <h2>141/СООБЩЕСТВО</h2>
+                <p>141 сообщество — это одно из самых крупнейших сообществ не только в СНГ Твиче, но и во всём мире. Крупнейшие стримеры, лучшие эдиторы и монтажёры. Десятки тысяч зрителей, объединённых вокруг одной компании стримеров.</p>
+            </div>
+            <div class="slide">
+                <img src="Photo/2.PNG" onerror="this.style.display='none'">
+                <h2>СТРИМЕРЫ/141</h2>
+                <p style="margin-bottom:18px;">Все мы знаем их. Они — лучшие в своём деле.</p>
+                <p style="text-align:left;max-width:580px;margin:0 auto;">
+                    <span class="streamer-name">Sasavot</span><span class="streamer-desc">Орлов Глеб Борисович. Лучший СНГ стример/хоубист 2025 и 2026 годов. Наш босс.</span>
+                    <span class="streamer-name">Rostikfacekid</span><span class="streamer-desc">Его смех знает весь Твич. Гордость Сообщества/141 в доте. Победитель СтримерсБатла.</span>
+                    <span class="streamer-name">Helin139</span><span class="error-block">ОШИБКА. Стример отсутствует в базе Твича.</span>
+                    <span class="streamer-name">Tankzor</span><span class="streamer-desc">Мы его позвали. Покровитель ОБЩЕСТВА 141.</span>
+                    <span class="streamer-name">R4dom1r и Yurapivo</span><span class="streamer-desc">Самые нишевые стримеры Твича. Лучшие косплеи.</span>
+                    <span class="streamer-name">Formixyouknow</span><span class="streamer-desc">Витя.</span>
+                    <span class="streamer-name">Poisonika</span><span class="streamer-desc">Самая добрая стримерша 141 сообщества.</span>
+                    <span class="streamer-name">iceicell</span><span class="streamer-desc">Всеми любимая стримерша. Нет тех, кто её ненавидит.</span>
+                    <span class="streamer-name">Asivoy</span><span class="streamer-desc">Человек, который гордится тем, что спалил свой ч**н.</span>
+                    <span class="streamer-name">Gagik</span><span class="streamer-desc">Легенда Маджестика. Забанил Липтошу в Тик Токе.</span>
+                    <span class="streamer-name">Timaevvv</span><span class="streamer-desc">Адам. Легенда.</span>
+                    <span class="streamer-name">Korya_MC</span><span class="streamer-desc">Запомнили как косплеершу, как «уф» и как ту, у которой надо починить смеситель.</span>
+                    <span class="streamer-name">Нарек</span><span class="streamer-desc">Гей.</span>
+                </p>
+            </div>
+            <div class="slide">
+                <img src="Photo/3.PNG" onerror="this.style.display='none'">
+                <h2>141gangNEWS</h2>
+                <p style="text-align:left;">141gangNEWS — телеграм-паблик, посвящённый 141 сообществу. Мы не просто обычный паблик с роботизированными постами раз в полдня. Мы — народный паблик, где всё решаете вы. Мы не только про новости, мы про ваше мнение, про мнение обычных зрителей. Каждый из вас влияет на развитие паблика. У нас каждый может сам написать новость, может сделать ролик и выложить его к нам, каждый может высказать своё собственное мнение. Мы хотим развивать это комьюнити, потому что у нас не только те, кто хочет читать новости, но и те, кто хочет участвовать в различных активностях, создавать творчество и делать масштабные проекты. А наш паблик — это способ показать это массовой аудитории.<br><br>Именно эта премия — первый шаг к тому, чтобы наше 141/сообщество стало ещё ближе и сплочённее. ❤️</p>
+            </div>
+            <div class="slider-arrows">
+                <div class="slider-arrow" onclick="prevSlide()">◂</div>
+                <div class="slider-arrow" onclick="nextSlide()">▸</div>
+            </div>
+            <div class="slider-dots">
+                <div class="dot active" onclick="goSlide(0)"></div>
+                <div class="dot" onclick="goSlide(1)"></div>
+                <div class="dot" onclick="goSlide(2)"></div>
+            </div>
+        </div>
+
+        <div class="nav-btns">
+            <a href="golosovanie.html" class="nav-btn">ГОЛОСОВАТЬ</a>
+            <a href="faq.html" class="nav-btn faq">FAQ</a>
+        </div>
+
+        <div class="footer">
+            <a href="https://t.me/gaang141" target="_blank">141gangNEWS <span>(@gaang141)</span></a>
+            <p class="ver">Beta 0.4 • 141/GANG/AWARD • 2026</p>
+        </div>
+    </div>
+
+    <script>
+    (function(){var c=document.getElementById('particles'),ctx=c.getContext('2d'),p=[];c.width=window.innerWidth;c.height=window.innerHeight;for(var i=0;i<50;i++){p.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.8+0.3,vx:(Math.random()-0.5)*0.25,vy:(Math.random()-0.5)*0.25,a:Math.random()*0.2+0.05});}function draw(){ctx.clearRect(0,0,c.width,c.height);p.forEach(function(pp){ctx.beginPath();ctx.arc(pp.x,pp.y,pp.r,0,Math.PI*2);ctx.fillStyle='rgba(220,30,30,'+pp.a+')';ctx.fill();pp.x+=pp.vx;pp.y+=pp.vy;if(pp.x<0)pp.x=c.width;if(pp.x>c.width)pp.x=0;if(pp.y<0)pp.y=c.height;if(pp.y>c.height)pp.y=0;});requestAnimationFrame(draw);}draw();window.addEventListener('resize',function(){c.width=window.innerWidth;c.height=window.innerHeight;});})();
+
+    var cur=0;
+    function goSlide(n){
+        document.querySelectorAll('.slide').forEach(function(s,i){s.classList.toggle('active',i===n);});
+        document.querySelectorAll('.dot').forEach(function(d,i){d.classList.toggle('active',i===n);});
+        cur=n;
+    }
+    function nextSlide(){goSlide((cur+1)%3);}function prevSlide(){goSlide((cur+2)%3);}
+    var startX=0;
+    document.querySelector('.slider-wrap').addEventListener('touchstart',function(e){startX=e.touches[0].clientX;});
+    document.querySelector('.slider-wrap').addEventListener('touchend',function(e){var end=e.changedTouches[0].clientX;if(startX-end>50)nextSlide();if(end-startX>50)prevSlide();});
+    </script>
+</body>
+</html>

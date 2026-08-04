@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>141/GANG/AWARD — FAQ • Beta 0.4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020000; --text: #fff; --accent: #e01010; --accent-glow: #ff3333;
+            --green: #1a3a1a; --radius: 14px; --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); overflow-x: hidden; }
+
+        .bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        .bg-layer::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 15% 10%, rgba(200,0,0,0.18) 0%, transparent 55%), radial-gradient(ellipse at 85% 40%, rgba(180,0,0,0.12) 0%, transparent 50%), radial-gradient(ellipse at 50% 85%, rgba(150,0,0,0.15) 0%, transparent 50%), radial-gradient(ellipse at 50% 0%, rgba(255,40,40,0.1) 0%, transparent 40%);
+            animation: bgShift 15s ease-in-out infinite;
+        }
+        @keyframes bgShift { 0%,100%{opacity:0.7} 50%{opacity:1} }
+        .grid-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; background-image: linear-gradient(rgba(200,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(200,0,0,0.03) 1px, transparent 1px); background-size: 60px 60px; }
+
+        .container { position: relative; z-index: 10; max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(28px, 7vw, 50px); letter-spacing: 4px; color: #fff; text-shadow: 0 0 15px rgba(220,0,0,0.7), 0 0 50px rgba(180,0,0,0.5); }
+        .header h1 .slash { color: var(--accent); }
+        .header .sub { font-size: 13px; letter-spacing: 5px; color: rgba(255,255,255,0.5); margin-top: 10px; text-transform: uppercase; }
+
+        .faq-slider { position: relative; margin: 30px 0; border-radius: var(--radius); border: 1px solid rgba(255,0,0,0.15); background: linear-gradient(145deg, rgba(25,0,0,0.9), rgba(5,0,0,0.95)); overflow: hidden; box-shadow: 0 0 40px rgba(180,0,0,0.15); }
+        .faq-slide { display: none; padding: 40px 35px; text-align: center; }
+        .faq-slide.active { display: block; animation: fadeSlide 0.5s ease-out; }
+        @keyframes fadeSlide { 0%{opacity:0;transform:translateY(10px)} 100%{opacity:1;transform:translateY(0)} }
+        .faq-slide img { width: 100%; max-width: 400px; border-radius: 12px; margin-bottom: 22px; border: 2px solid rgba(200,0,0,0.35); }
+        .faq-slide h3 { font-family: 'Orbitron', sans-serif; font-size: 16px; letter-spacing: 2px; color: var(--accent-glow); margin-bottom: 16px; }
+        .faq-slide p { font-size: 14px; line-height: 1.9; color: rgba(255,255,255,0.65); max-width: 600px; margin: 0 auto; text-align: left; }
+
+        .faq-arrows { position: absolute; top: 50%; left: 0; width: 100%; transform: translateY(-50%); pointer-events: none; display: flex; justify-content: space-between; padding: 0 10px; }
+        .faq-arrow { pointer-events: auto; width: 44px; height: 44px; background: rgba(20,0,0,0.8); border: 1px solid rgba(255,50,50,0.5); color: var(--accent-glow); font-size: 20px; cursor: pointer; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+        .faq-arrow:hover { background: rgba(200,0,0,0.6); color: #fff; }
+        .faq-dots { display: flex; justify-content: center; gap: 8px; padding: 0 0 20px; }
+        .faq-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,50,50,0.25); cursor: pointer; transition: var(--transition); }
+        .faq-dot.active { background: var(--accent-glow); box-shadow: 0 0 8px var(--accent-glow); }
+
+        .back-btn { display: block; width: fit-content; margin: 30px auto 0; padding: 14px 35px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, rgba(200,0,0,0.8), rgba(100,0,0,0.9)); border: 1px solid rgba(255,50,50,0.5); cursor: pointer; border-radius: 50px; text-decoration: none; transition: var(--transition); box-shadow: 0 0 25px rgba(255,0,0,0.2); }
+        .back-btn:hover { background: linear-gradient(135deg, #ff2222, #aa0000); border-color: #ff5555; transform: translateY(-3px); }
+
+        .footer { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid rgba(200,0,0,0.2); }
+        .footer a { color: rgba(255,255,255,0.5); text-decoration: none; font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 4px; transition: var(--transition); }
+        .footer a:hover { color: var(--accent-glow); }
+        .footer a span { color: var(--accent); }
+        .footer .ver { font-size: 9px; color: rgba(255,255,255,0.1); margin-top: 10px; letter-spacing: 3px; }
+
+        @media(max-width:600px){ .faq-slide{padding:30px 20px} .faq-arrow{width:36px;height:36px;font-size:16px} }
+    </style>
+</head>
+<body>
+    <div class="bg-layer"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>ЧАСТО ЗАДАВАЕМЫЕ ВОПРОСЫ</h1>
+            <p class="sub">141/GANG/AWARD</p>
+        </div>
+
+        <div class="faq-slider">
+            <div class="faq-slide active">
+                <img src="Photo/f1.PNG" onerror="this.style.display='none'">
+                <h3>Почему Глеба нету в номинациях?</h3>
+                <p>Он сам попросил убрать его. Мы разделяем его мнение о том, что присутствие его в номинациях убило бы конкуренцию.</p>
+            </div>
+            <div class="faq-slide">
+                <img src="Photo/f2.PNG" onerror="this.style.display='none'">
+                <h3>Как работает защита, если входа по аккаунтам нет?</h3>
+                <p>Действительно, входа по аккаунтам нет. Но мы сделали так, что вы голосуете не с аккаунта, а с IP. Вы можете сказать: а что если я включу VPN или режим инкогнито? Сервер видит режим инкогнито и не считает с него голоса. По поводу VPN мне объяснил наш программист:<br><br>«У нас серверная валидация по IP с геопривязкой. Голоса принимаются только с российских IP-адресов. Если человек голосует через VPN — сервер видит, что IP принадлежит дата-центру (VPN-провайдеру), а не жилому провайдеру. Такие голоса помечаются как подозрительные и не участвуют в подсчёте. Также работает защита от дублирования: если с одного IP уже был голос в номинации, повторный не засчитывается, даже если очистить localStorage. Всё это происходит на стороне сервера.»</p>
+            </div>
+            <div class="faq-slide">
+                <img src="Photo/f3.PNG" onerror="this.style.display='none'">
+                <h3>Как отбирались номинанты и почему кого-то нет в номинациях?</h3>
+                <p>Номинанты отбирались комьюнити 141gangNEWS. Если вас нет — значит вас или не писали, или вы не проходите по критериям.</p>
+            </div>
+            <div class="faq-arrows">
+                <div class="faq-arrow" onclick="prevFaq()">◂</div>
+                <div class="faq-arrow" onclick="nextFaq()">▸</div>
+            </div>
+            <div class="faq-dots">
+                <div class="faq-dot active" onclick="goFaq(0)"></div>
+                <div class="faq-dot" onclick="goFaq(1)"></div>
+                <div class="faq-dot" onclick="goFaq(2)"></div>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-btn">← НА ГЛАВНУЮ</a>
+
+        <div class="footer">
+            <a href="https://t.me/gaang141" target="_blank">141gangNEWS <span>(@gaang141)</span></a>
+            <p class="ver">Beta 0.4 • 141/GANG/AWARD • 2026</p>
+        </div>
+    </div>
+
+    <script>
+    var faqCur = 0;
+    function goFaq(n){
+        document.querySelectorAll('.faq-slide').forEach(function(s,i){ s.classList.toggle('active',i===n); });
+        document.querySelectorAll('.faq-dot').forEach(function(d,i){ d.classList.toggle('active',i===n); });
+        faqCur = n;
+    }
+    function nextFaq(){ goFaq((faqCur+1)%3); }
+    function prevFaq(){ goFaq((faqCur+2)%3); }
+
+    var startX = 0;
+    document.querySelector('.faq-slider').addEventListener('touchstart',function(e){ startX = e.touches[0].clientX; });
+    document.querySelector('.faq-slider').addEventListener('touchend',function(e){ var end = e.changedTouches[0].clientX; if(startX-end>50) nextFaq(); if(end-startX>50) prevFaq(); });
+    </script>
+</body>
+</html>
